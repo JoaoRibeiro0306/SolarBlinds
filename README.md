@@ -1,2 +1,2 @@
 # SolarBlinds
-Solar Blinds
+Currently WIP
