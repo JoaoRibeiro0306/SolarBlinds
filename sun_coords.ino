@@ -35,8 +35,19 @@ void loop() {
 
   if(gamma > 0){ //The angle of the panel is getting smaller by minus gamma
     rotating_notches = round((gamma*64)/360); //Calculating what are the number of notches that need to be turned for the panel to rotate gamma degrees
+    rotate_clockwise(rotating_notches);
+  }
+  else if(gamma < 0){ //The angle of the panel is getting bigger by gamma
+    gamma = abs(gamma); //Getting the absolute value of gamma
 
-    for(int i=rotating_notches;i>=1;i--){ //Rotate the panel
+    rotating_notches = round((gamma*64)/360); //Calculating what are the number of notches that need to be turned for the panel to rotate gamma degrees
+    rotate_counter_clockwise(rotating_notches);
+  }
+  delay(15);
+}
+
+void rotate_clockwise(int rotating_noches){
+  for(int i=rotating_notches;i>=1;i--){ //Rotate the panel
        digitalWrite(ctr_a,LOW);//A
        digitalWrite(ctr_b,HIGH);
        digitalWrite(ctr_c,HIGH);
@@ -55,7 +66,7 @@ void loop() {
        digitalWrite(ctr_a,HIGH);
        digitalWrite(ctr_b,LOW);
        digitalWrite(ctr_c,LOW);//BC
-        digitalWrite(ctr_d,HIGH);
+       digitalWrite(ctr_d,HIGH);
        delayMicroseconds(t);
        digitalWrite(ctr_a,HIGH);
        digitalWrite(ctr_b,HIGH);
@@ -67,7 +78,7 @@ void loop() {
        digitalWrite(ctr_c,LOW);//CD
        digitalWrite(ctr_d,LOW);
        delayMicroseconds(t);
-        digitalWrite(ctr_a,HIGH);
+       digitalWrite(ctr_a,HIGH);
        digitalWrite(ctr_b,HIGH);
        digitalWrite(ctr_c,HIGH);//D
        digitalWrite(ctr_d,LOW);
@@ -78,14 +89,10 @@ void loop() {
        digitalWrite(ctr_d,LOW);
        delayMicroseconds(t);      
     }
-  }
+}
 
-  if(gamma < 0){ //The angle of the panel is getting bigger by gamma
-    gamma = abs(gamma); //Getting the absolute value of gamma
-
-    rotating_notches = round((gamma*64)/360); //Calculating what are the number of notches that need to be turned for the panel to rotate gamma degrees
-
-    for(int i=rotating_notches;i>=1;i--){ //Rotate the panel in the other direction (To be determined)
+void rotate_counter_clockwise(int rotating_noches){
+  for(int i=rotating_notches;i>=1;i--){ //Rotate the panel in the other direction (To be determined)
        digitalWrite(ctr_a,HIGH);
        digitalWrite(ctr_b,HIGH);
        digitalWrite(ctr_c,HIGH);
@@ -127,6 +134,4 @@ void loop() {
        digitalWrite(ctr_d,LOW);
        delayMicroseconds(t);      
     }
-  }
-
 }
