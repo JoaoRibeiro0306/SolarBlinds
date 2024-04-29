@@ -49,6 +49,8 @@ void loop() {
 
   gamma = current_angle - elevation;
 
+  current_angle = elevation;
+
   if(gamma > 0){ //The angle of the panel is getting smaller by minus gamma
     rotating_notches = round((gamma*64)/360); //Calculating what are the number of notches that need to be turned for the panel to rotate gamma degrees
 
@@ -144,5 +146,5 @@ void loop() {
        delayMicroseconds(t);      
     }
   }
-
+  delay(1000);
 }
