@@ -252,9 +252,16 @@ void rotate_blinds(double elevation){
 
   gamma = current_angle - elevation;
 
+<<<<<<< HEAD
   current_angle = elevation;  
   
   Serial.println(gamma);
+=======
+  current_angle = elevation;
+
+  if(gamma > 0){ //The angle of the panel is getting smaller by minus gamma
+    rotating_notches = round((gamma*64)/360); //Calculating what are the number of notches that need to be turned for the panel to rotate gamma degrees
+>>>>>>> 44862e025b56534c17e20bc72c5b0dd918cf1e2b
 
   if(gamma > 0){ //The angle of the panel is getting smaller by minus gamma
     gamma_aux = gamma;
@@ -281,6 +288,7 @@ void rotate_blinds(double elevation){
     if(gamma > 60){
       gamma = gamma/2;
     }
+<<<<<<< HEAD
 
     rotating_notches = round((gamma*512)/360); //Calculating what are the number of notches that need to be turned for the panel to rotate gamma degrees
 
@@ -293,3 +301,8 @@ void rotate_blinds(double elevation){
     }
   } 
 }
+=======
+  }
+  delay(1000);
+}
+>>>>>>> 44862e025b56534c17e20bc72c5b0dd918cf1e2b

@@ -44,10 +44,8 @@ void loop() {
     write_time();
     a = 1;
   }
-  
- 
+   
   delay(1000);
- 
 }
 
 void write_time(){
