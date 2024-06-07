@@ -12,8 +12,6 @@
 
   The following variables are automatically generated and updated when changes are made to the Thing
 
-  float latitude;
-  float longitude;
   int inclination;
   CloudPower in_power;
   bool automatic_mode;
@@ -30,11 +28,8 @@ WiFiUDP ntpUDP;
 // 'time.nist.gov' is used (default server) with +1 hour offset (3600 seconds) 60 seconds (60000 milliseconds) update interval
 NTPClient timeClient(ntpUDP, "time.nist.gov", 3600, 60000);
 
-//const char *ssid     = "*******";
-//const char *password = "*******";
-
-//const char *ssid     = "*******";
-//const char *password = "*******";
+const char *ssid     = "*******";
+const char *password = "*******";
 
 char Time[] = "TIME:00:00:00";
 char Date[] = "DATE:00/00/2000";
@@ -46,11 +41,6 @@ String inclination_send;
 
 char ptr1[100];
 char ptr2[100];
-
-// ESP8266 ESP-01 Internet real time clock
- 
-// Include Arduino time library
-
 
 void setup() {
   // Initialize serial and wait for port to open:
@@ -124,9 +114,6 @@ void write_time(){
   Date[14] = year_   % 10 % 10 + 48;
 
   // Send time and date to serial monitor
-  //Serial.println(Time);
-  //Serial.println(Date);
-
   Serial.write(Time);
   Serial.write(Date);
 
@@ -169,19 +156,19 @@ void onInclinationChange()  {
   Since InVoltage is READ_WRITE variable, onInVoltageChange() is
   executed every time a new value is received from IoT Cloud.
 */
-void onInVoltageChange()  {
+/*void onInVoltageChange()  {
   // Add your code here to act upon InVoltage change
   a = 1;
-}
+}*/
 
 /*
   Since InCurrent is READ_WRITE variable, onInCurrentChange() is
   executed every time a new value is received from IoT Cloud.
 */
-void onInCurrentChange()  {
+/*void onInCurrentChange()  {
   // Add your code here to act upon InCurrent change
   a = 1;
-}
+}*/
 
 /*
   Since InPower is READ_WRITE variable, onInPowerChange() is
@@ -192,24 +179,6 @@ void onInPowerChange()  {
   a = 1;
 }
 
-
-
-/*
-  Since Location is READ_WRITE variable, onLocationChange() is
-  executed every time a new value is received from IoT Cloud.
-*/
-void onLocationChange()  {
-  // Add your code here to act upon Location change
-  a = 1;
-}
-
-
-
-
-
-
-
-
 /*
   Since Latitude is READ_WRITE variable, onLatitudeChange() is
   executed every time a new value is received from IoT Cloud.
@@ -217,7 +186,6 @@ void onLocationChange()  {
 void onLatitudeChange()  {
   // Add your code here to act upon Latitude change
 }
-
 
 /*
   Since Longitude is READ_WRITE variable, onLongitudeChange() is

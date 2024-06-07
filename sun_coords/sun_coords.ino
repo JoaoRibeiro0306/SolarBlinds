@@ -36,6 +36,16 @@ float ref_voltage = 5.0;
 // Integer for ADC value
 int adc_value = 0;
 
+int a = 0;
+
+String mode_rec = "1";
+String elevation_rec;
+
+//Gets the rest for the elevation while there is not a rotating notch 
+double elevation_rest = 0;
+
+double elevation=0;
+
 SerialUtil mySerial_bool;
 
 void setup() {
@@ -62,67 +72,103 @@ void setup() {
   mySerial_bool.setTimeChangeCom(5000);
 
   while(mySerial.available()==0){
-    int a = 1;
-    Serial.println(a);
+    Serial.println("Connecting");
     delay(1000);
   }
 
-  //String Garbage = mySerial.readStringUntil('T');
-  //Serial.println(Garbage);
+  int index = 0;
+  String Time = mySerial.readString();
+  while(Time.indexOf("TIME") == -1){
+    String Time = mySerial.readString();
+  }
 
-  //while(mySerial.available()==0){
-    //int a = 1;
-    //Serial.println(a);
-    //delay(1000);
-  //}
-  
-  String Time = mySerial.readStringUntil(':');
-  Serial.println(Time);
-  String hr_s = mySerial.readStringUntil(':');
+  index = Time.indexOf("TIME");
+  String Time_prnt = Time.substring(index, index+4);
+  Serial.print("Time = ");
+  Serial.println(Time_prnt);
+  String hr_s = Time.substring(index+5, index+7);
+  Serial.print("Hora = ");
   Serial.println(hr_s);
-  String min_s = mySerial.readStringUntil(':');
+  String min_s = Time.substring(index+8, index+10);
+  Serial.print("Minuto = ");
   Serial.println(min_s);
-  String sec_s = mySerial.readStringUntil('D');
+  String sec_s = Time.substring(index+11, index+13);
+  Serial.print("Segundo = ");
   Serial.println(sec_s);
 
-  while(mySerial.available()==0){
-    int a = 1;
-    Serial.println(a);
-    delay(1000);
+  String dy_s;
+  String mnth_s;
+  String yr_s;
+
+  if(Time.indexOf("DATE") == -1){
+    
+    while(mySerial.available()==0){
+      Serial.println("Waiting");
+      delay(1000);
+    }
+    String Date = 'D' + mySerial.readStringUntil(':');
+    Serial.println(Date);
+    dy_s = mySerial.readStringUntil('/');
+    Serial.println(dy_s);
+    mnth_s = mySerial.readStringUntil('/');
+    Serial.println(mnth_s);
+    yr_s = mySerial.readStringUntil('/');
+    Serial.println(yr_s);
+  }
+
+  else{
+    index = Time.indexOf("DATE");
+    String Date_prnt = Time.substring(index, index+4);
+    Serial.print("Date = ");
+    Serial.println(Date_prnt);
+    dy_s = Time.substring(index+5, index+7);
+    Serial.print("Dia = ");
+    Serial.println(dy_s);
+    mnth_s = Time.substring(index+8, index+10);
+    Serial.print("Mês = ");
+    Serial.println(mnth_s);
+    yr_s = Time.substring(index+11, index+15);
+    Serial.print("Ano = ");
+    Serial.println(yr_s);
   }
   
-  String Date = 'D' + mySerial.readStringUntil(':');
-  Serial.println(Date);
-  String dy_s = mySerial.readStringUntil('/');
-  Serial.println(dy_s);
-  String mnth_s = mySerial.readStringUntil('/');
-  Serial.println(mnth_s);
-  String yr_s = mySerial.readStringUntil('/');
-  Serial.println(yr_s);
 
   // Set time manually (hr, min, sec, day, mo, yr)
   setTime(hr_s.toInt(), min_s.toInt(), sec_s.toInt(), dy_s.toInt(), mnth_s.toInt(), yr_s.toInt());
-
+  
   delay(1);
-
 }
 
 void loop() {
-  bool mode_selector=true;
-  float elevation=0;
 
-  mySerial_bool.loop(millis());
+  if(mySerial.available()!= 0){
+    mode_rec = mySerial.readStringUntil('\n');
+    mode_rec = mode_rec.substring(1,2);
+    elevation_rec = mySerial.readStringUntil('\n');
+    elevation_rec = elevation_rec.substring(2,4);  
+  }
+  
+  if(mode_rec != "0" && mode_rec != "1"){
+    mode_rec = "1";
+  }
 
-  mode_selector = mySerial_bool.readBool();
-  elevation = mySerial_bool.readFloat();
+  else{
+     elevation = elevation_rec.toFloat();
+  }
+ 
+   Serial.print("Mode selector = ");
+   Serial.println(mode_rec); 
+   
 
-  if(mode_selector==true){
+   Serial.print("Elevation = ");
+   Serial.println(elevation_rec);
+   
+  if(mode_rec=="1"){
     automatic_mode();
   }
   else{
     rotate_blinds(elevation);
   }
-
   delay(1000);
 }
 
@@ -239,29 +285,27 @@ void calc_power(){
 
 void automatic_mode(){
   time_t utc = now(); //Get the time and date of the measurement
-  double azimuth, elevation; //Gamma is the degrees that the panel has to turn to maximize its power production
+  double azimuth = 0, elevation = 0; //Gamma is the degrees that the panel has to turn to maximize its power production
 
   calcHorizontalCoordinates(utc, latitude, longitude, azimuth, elevation); //Calculate the azimuth and elevation of the sun
-
+  Serial.print("Elevation = ");
+  Serial.println(elevation);
   rotate_blinds(elevation); 
 }
 
 void rotate_blinds(double elevation){
   double gamma=0, gamma_aux=0;
   int rotating_notches = 0; //Amount of notches that need to be rotated to turn gamma degrees
+  double not_rotating_notches = 0;
 
-  gamma = current_angle - elevation;
-
-<<<<<<< HEAD
-  current_angle = elevation;  
-  
+  gamma = elevation - current_angle;
+  Serial.print("Gamma = ");
   Serial.println(gamma);
-=======
-  current_angle = elevation;
-
-  if(gamma > 0){ //The angle of the panel is getting smaller by minus gamma
-    rotating_notches = round((gamma*64)/360); //Calculating what are the number of notches that need to be turned for the panel to rotate gamma degrees
->>>>>>> 44862e025b56534c17e20bc72c5b0dd918cf1e2b
+  
+  if(abs(gamma) < 0.71){
+    return;
+  }
+  current_angle = elevation; 
 
   if(gamma > 0){ //The angle of the panel is getting smaller by minus gamma
     gamma_aux = gamma;
@@ -269,9 +313,9 @@ void rotate_blinds(double elevation){
     if(gamma > 60){
       gamma = gamma/2;  
     }
-    
-    rotating_notches = round((gamma*512)/360); //Calculating what are the number of notches that need to be turned for the panel to rotate gamma degrees
 
+    rotating_notches = round((gamma*512)/360); //Calculating what are the number of notches that need to be turned for the panel to rotate gamma degrees
+    
     rotate_upwards(rotating_notches);
 
     if(gamma_aux > 60){
@@ -288,7 +332,6 @@ void rotate_blinds(double elevation){
     if(gamma > 60){
       gamma = gamma/2;
     }
-<<<<<<< HEAD
 
     rotating_notches = round((gamma*512)/360); //Calculating what are the number of notches that need to be turned for the panel to rotate gamma degrees
 
@@ -299,10 +342,5 @@ void rotate_blinds(double elevation){
   
       rotate_downwards(rotating_notches);
     }
-  } 
-}
-=======
   }
-  delay(1000);
 }
->>>>>>> 44862e025b56534c17e20bc72c5b0dd918cf1e2b
